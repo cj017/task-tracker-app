@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Удалить проект</title>
+</head>
+<body>
+
+<h1>Удалить проект?</h1>
+
+<p>
+    {{ project.title }}
+</p>
+
+<form method="post">
+
+    {% csrf_token %}
+
+    <button type="submit">
+        Да, удалить
+    </button>
+
+    <a href="{% url 'project_list' %}">
+        Отмена
+    </a>
+
+</form>
+
+</body>
+</html>

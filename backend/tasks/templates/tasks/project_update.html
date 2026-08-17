@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Редактировать проект</title>
+</head>
+<body>
+
+<h1>Редактировать проект</h1>
+
+<form method="post">
+
+    {% csrf_token %}
+
+    <label>
+        Название
+    </label>
+
+    <br>
+
+    <input
+        type="text"
+        name="title"
+        value="{{ project.title }}"
+        required
+    >
+
+    <br><br>
+
+    <label>
+        Описание
+    </label>
+
+    <br>
+
+    <textarea name="description">{{ project.description }}</textarea>
+
+    <br><br>
+
+    <button type="submit">
+        Сохранить
+    </button>
+
+</form>
+
+<br>
+
+<a href="{% url 'project_list' %}">
+    Отмена
+</a>
+
+</body>
+</html>
