@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Редактировать задачу</title>
+</head>
+
+<body>
+
+<h1>Редактировать задачу</h1>
+
+<p>
+    Проект: {{ project.title }}
+</p>
+
+<form method="post">
+
+    {% csrf_token %}
+
+    <label>
+        Название
+    </label>
+
+    <br>
+
+    <input
+        type="text"
+        name="title"
+        value="{{ task.title }}"
+        required
+    >
+
+    <br><br>
+
+    <label>
+        Описание
+    </label>
+
+    <br>
+
+    <textarea name="description">{{ task.description }}</textarea>
+
+    <br><br>
+
+    <label>
+        Статус
+    </label>
+
+    <br>
+
+    <select name="status">
+
+        <option
+            value="todo"
+            {% if task.status == "todo" %}selected{% endif %}
+        >
+            Не выполнено
+        </option>
+
+        <option
+            value="done"
+            {% if task.status == "done" %}selected{% endif %}
+        >
+            Выполнено
+        </option>
+
+    </select>
+
+    <br><br>
+
+    <label>
+        Приоритет
+    </label>
+
+    <br>
+
+    <select name="priority">
+
+        <option
+            value="low"
+            {% if task.priority == "low" %}selected{% endif %}
+        >
+            Низкий
+        </option>
+
+        <option
+            value="medium"
+            {% if task.priority == "medium" %}selected{% endif %}
+        >
+            Средний
+        </option>
+
+        <option
+            value="high"
+            {% if task.priority == "high" %}selected{% endif %}
+        >
+            Высокий
+        </option>
+
+    </select>
+
+    <br><br>
+
+    <label>
+        Дедлайн
+    </label>
+
+    <br>
+
+    <input
+        type="date"
+        name="due_date"
+        value="{{ task.due_date|date:'Y-m-d' }}"
+    >
+
+    <br><br>
+
+    <button type="submit">
+        Сохранить
+    </button>
+
+</form>
+
+<br>
+
+<a href="{% url 'task_list' project.id %}">
+    Отмена
+</a>
+
+</body>
+</html>

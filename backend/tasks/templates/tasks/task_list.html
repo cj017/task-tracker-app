@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ project.title }}</title>
+</head>
+<body>
+
+<h1>{{ project.title }}</h1>
+
+<p>{{ project.description }}</p>
+
+<a href="{% url 'task_create' project.id %}">
+    + Создать задачу
+</a>
+
+<hr>
+
+{% for task in tasks %}
+
+    <h2>{{ task.title }}</h2>
+
+    <p>{{ task.description }}</p>
+
+    <p>
+        Статус: {{ task.get_status_display }}
+    </p>
+
+    <p>
+        Приоритет: {{ task.get_priority_display }}
+    </p>
+
+    {% if task.due_date %}
+        <p>
+            Дедлайн: {{ task.due_date }}
+        </p>
+    {% endif %}
+
+    
+
+{% empty %}
+
+    <p>В этом проекте пока нет задач.</p>
+
+{% endfor %}
+
+<br>
+
+<a href="{% url 'project_list' %}">
+    ← Назад к проектам
+</a>
+
+</body>
+</html>

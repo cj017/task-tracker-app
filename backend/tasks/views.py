@@ -118,3 +118,124 @@ def project_update(request, project_id):
         "tasks/project_update.html",
         {"project": project}
     )
+
+@login_required
+def task_list(request, project_id):
+    project = get_object_or_404(
+        Project,
+        id=project_id,
+        user=request.user
+    )
+
+    tasks = project.tasks.all()
+
+    return render(
+        request,
+        "tasks/task_list.html",
+        {
+            "project": project,
+            "tasks": tasks,
+        }
+    )
+
+@login_required
+def task_create(request, project_id):
+    project = get_object_or_404(
+        Project,
+        id=project_id,
+        user=request.user
+    )
+
+    if request.method == "POST":
+        title = request.POST.get("title")
+        description = request.POST.get("description")
+        status = request.POST.get("status")
+        priority = request.POST.get("priority")
+        due_date = request.POST.get("due_date")
+
+        Task.objects.create(
+            project=project,
+            title=title,
+            description=description,
+            status=status,
+            priority=priority,
+            due_date=due_date or None,
+        )
+
+        return redirect("task_list", project_id=project.id)
+
+    return render(
+        request,
+        "tasks/task_create.html",
+        {"project": project}
+    )
+
+@login_required
+def task_update(request, project_id, task_id):
+    project = get_object_or_404(
+        Project,
+        id=project_id,
+        user=request.user
+    )
+
+    task = get_object_or_404(
+        Task,
+        id=task_id,
+        project=project
+    )
+
+    if request.method == "POST":
+        task.title = request.POST.get("title")
+        task.description = request.POST.get("description")
+        task.status = request.POST.get("status")
+        task.priority = request.POST.get("priority")
+
+        due_date = request.POST.get("due_date")
+        task.due_date = due_date or None
+
+        task.save()
+
+        return redirect(
+            "task_list",
+            project_id=project.id
+        )
+
+    return render(
+        request,
+        "tasks/task_update.html",
+        {
+            "project": project,
+            "task": task,
+        }
+    )
+
+@login_required
+def task_delete(request, project_id, task_id):
+    project = get_object_or_404(
+        Project,
+        id=project_id,
+        user=request.user
+    )
+
+    task = get_object_or_404(
+        Task,
+        id=task_id,
+        project=project
+    )
+
+    if request.method == "POST":
+        task.delete()
+
+        return redirect(
+            "task_list",
+            project_id=project.id
+        )
+
+    return render(
+        request,
+        "tasks/task_delete.html",
+        {
+            "project": project,
+            "task": task,
+        }
+    )
