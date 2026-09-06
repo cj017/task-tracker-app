@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { createTask, deleteTask, getTasks, type Task, type TaskPayload, updateTask } from "../../services/api";
+import ConfirmDialog from "../../components/ConfirmDialog";
+import { createTask, deleteTask, getTasks, type Task, type TaskPayload, updateTask } from "../../services/tasks";
 
 const emptyTask = (): Omit<TaskPayload, "project"> => ({
   title: "", description: "", status: "todo", priority: "medium", due_date: null,
@@ -17,10 +18,11 @@ function Tasks() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [taskToDelete, setTaskToDelete] = useState<Task | null>(null);
 
   useEffect(() => {
     async function loadTasks() {
-      try { setTasks((await getTasks()).filter((task) => task.project === project)); }
+      try { setTasks(await getTasks(project)); }
       catch { setError("Не удалось загрузить задачи. Попробуйте обновить страницу."); }
       finally { setLoading(false); }
     }
@@ -56,10 +58,16 @@ function Tasks() {
     } catch { setError("Не удалось сохранить задачу."); }
   }
 
-  async function handleDelete(id: number) {
-    if (!window.confirm("Удалить задачу?")) return;
-    try { await deleteTask(id); setTasks((current) => current.filter((task) => task.id !== id)); }
-    catch { setError("Не удалось удалить задачу."); }
+  async function handleDelete() {
+    if (!taskToDelete) return;
+    try {
+      await deleteTask(taskToDelete.id);
+      setTasks((current) => current.filter((task) => task.id !== taskToDelete.id));
+      if (editingId === taskToDelete.id) resetForm();
+      setTaskToDelete(null);
+    } catch {
+      setError("Не удалось удалить задачу.");
+    }
   }
 
   if (loading) return <p className="loading">Загружаем задачи...</p>;
@@ -79,7 +87,7 @@ function Tasks() {
           ) : tasks.map((task) => (
             <article className="card task-card" key={task.id}>
               <div className="task-card-top"><div><h2>{task.title}</h2><p>{task.description || "Описание не добавлено."}</p></div><div className="task-meta"><span className={`chip status-${task.status}`}>{statusLabels[task.status]}</span><span className={`chip priority-${task.priority}`}>{priorityLabels[task.priority]}</span>{task.due_date && <span className="chip due-date">До {task.due_date}</span>}</div></div>
-              <div className="card-actions"><button className="button button-secondary button-small" onClick={() => startEditing(task)}>Редактировать</button><button className="button button-danger button-small" onClick={() => handleDelete(task.id)}>Удалить</button></div>
+              <div className="card-actions"><button className="button button-secondary button-small" onClick={() => startEditing(task)}>Редактировать</button><button className="button button-danger button-small" onClick={() => setTaskToDelete(task)}>Удалить</button></div>
             </article>
           ))}
         </section>
@@ -96,6 +104,14 @@ function Tasks() {
           </form>
         </aside>
       </div>
+      <ConfirmDialog
+        open={taskToDelete !== null}
+        title="Удалить задачу?"
+        description={`Задача «${taskToDelete?.title ?? ""}» будет удалена без возможности восстановления.`}
+        confirmLabel="Удалить задачу"
+        onCancel={() => setTaskToDelete(null)}
+        onConfirm={handleDelete}
+      />
     </>
   );
 }

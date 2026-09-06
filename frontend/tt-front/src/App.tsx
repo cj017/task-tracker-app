@@ -1,31 +1,30 @@
 import "./App.css";
-import { useEffect, useState } from "react";
 import { NavLink, Navigate, Outlet, Route, Routes, useNavigate } from "react-router-dom";
 
-import { isAuthenticated, logout } from "./services/api";
+import { useAuth } from "./auth/AuthProvider";
 import Login from "./pages/login/login";
 import Projects from "./pages/projects/projects";
 import Register from "./pages/register/register";
 import Tasks from "./pages/tasks/tasks";
 
 function ProtectedRoute() {
-  const [authenticated, setAuthenticated] = useState(isAuthenticated);
+  const { isAuthenticated } = useAuth();
+  return isAuthenticated ? <Outlet /> : <Navigate to="/login" replace />;
+}
 
-  useEffect(() => {
-    const handleExpiredSession = () => setAuthenticated(false);
-    window.addEventListener("auth:expired", handleExpiredSession);
-    return () => window.removeEventListener("auth:expired", handleExpiredSession);
-  }, []);
-
-  return authenticated ? <Outlet /> : <Navigate to="/login" replace />;
+function GuestRoute() {
+  const { isAuthenticated } = useAuth();
+  return isAuthenticated ? <Navigate to="/projects" replace /> : <Outlet />;
 }
 
 function HomeRedirect() {
-  return <Navigate to={isAuthenticated() ? "/projects" : "/login"} replace />;
+  const { isAuthenticated } = useAuth();
+  return <Navigate to={isAuthenticated ? "/projects" : "/login"} replace />;
 }
 
 function AppLayout() {
   const navigate = useNavigate();
+  const { logout } = useAuth();
 
   async function handleLogout() {
     await logout();
@@ -53,8 +52,10 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={<HomeRedirect />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
+      <Route element={<GuestRoute />}>
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+      </Route>
       <Route element={<ProtectedRoute />}>
         <Route element={<AppLayout />}>
           <Route path="/projects" element={<Projects />} />

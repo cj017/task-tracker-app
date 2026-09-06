@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { createProject, deleteProject, getProjects, updateProject } from "../../services/api";
+import { createProject, deleteProject, getProjects, type Project, updateProject } from "../../services/projects";
 import ConfirmDialog from "../../components/ConfirmDialog";
-
-type Project = { id: number; title: string; description: string };
 
 function Projects() {
   const navigate = useNavigate();
