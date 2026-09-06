@@ -141,7 +141,7 @@ CORS_ALLOWED_ORIGINS = [
     origin.strip()
     for origin in config(
         'CORS_ALLOWED_ORIGINS',
-        default="https://task-tracker-app-vert.vercel.app/"
+        default="https://task-tracker-app-vert.vercel.app"
     ).split(',')
     if origin.strip()
 ]
